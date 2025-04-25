@@ -1,0 +1,159 @@
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta http-equiv="refresh" content="60"> -->
+    <title>我的股票追蹤</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        table {
+            font-size: 0.95rem;
+        }
+        .text-success {
+            font-weight: bold;
+        }
+        .text-danger {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body> <!-- 👈 加上這個 -->
+
+<h2 class="mt-5 text-center">🧾 我的持股明細與損益（含股利）</h2>
+<form method="get" class="text-center my-3">
+    <label for="year">📅 選擇股利年份：</label>
+    <select name="year" id="year" onchange="this.form.submit()">
+        {% for y in years %}
+        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover text-center align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>名稱</th>
+                <th>代碼</th>
+                <th>平均成本</th>
+                <th>即時價格</th>
+                <th>股數</th>
+                <th>總成本</th>
+                <th>現值</th>
+                <th>損益</th>
+                <th>報酬率</th>
+                <th>現金股利</th>
+                <th>股票股利</th>
+                <th>總現金股利</th>
+                <th>總股票股利</th>
+                <th>股票股利市值</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in portfolio %}
+            <tr>
+                <td>{{ row.名稱 }}</td>
+                <td>{{ row.代碼 }}</td>
+                <td>{{ row.平均成本 }}</td>
+                <td>{{ row.即時價格 }}</td>
+                <td>{{ row.股數 }}</td>
+                <td>{{ row.總成本 }}</td>
+                <td>{{ row.現值 }}</td>
+                <td class="{% if row.損益|float >= 0 %}text-success{% else %}text-danger{% endif %}">{{ row.損益 }}</td>
+                <td class="{% if '+' in row.報酬率 %}text-success{% elif '-' in row.報酬率 %}text-danger{% endif %}">{{ row.報酬率 }}</td>
+                <td>{{ row.現金股利 }}</td>
+                <td>{{ row.股票股利 }}</td>
+                <td>{{ row.總現金股利 }}</td>
+                <td>{{ row.總股票股利 }}</td>
+                <td>{{ row.股票股利市值 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="table-secondary fw-bold">
+            <tr>
+                <td colspan="5" class="text-end">總計</td>
+                <td>{{ summary.總成本 }}</td>
+                <td>{{ summary.現值 }}</td>
+                <td class="{% if summary.損益 >= 0 %}text-success{% else %}text-danger{% endif %}">{{ summary.損益 }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ summary.總現金股利 }}</td>
+                <td>{{ summary.總股票股利 }}</td>
+                <td>{{ summary.總股票股利市值 }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- ✅ 媽媽持股表格 -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover text-center align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th colspan="14" class="text-center fs-5">👩 媽媽的持股</th>
+            </tr>
+            <tr>
+                <th>名稱</th><th>代碼</th><th>平均成本</th><th>即時價格</th><th>股數</th><th>總成本</th>
+                <th>現值</th><th>損益</th><th>報酬率</th><th>現金股利</th><th>股票股利</th>
+                <th>總現金股利</th><th>總股票股利</th><th>股票股利市值</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in mom_portfolio %}
+            <tr>
+                <td>{{ row.名稱 }}</td><td>{{ row.代碼 }}</td><td>{{ row.平均成本 }}</td><td>{{ row.即時價格 }}</td>
+                <td>{{ row.股數 }}</td><td>{{ row.總成本 }}</td><td>{{ row.現值 }}</td>
+                <td class="{% if row.損益|float >= 0 %}text-success{% else %}text-danger{% endif %}">{{ row.損益 }}</td>
+                <td class="{% if '+' in row.報酬率 %}text-success{% elif '-' in row.報酬率 %}text-danger{% endif %}">{{ row.報酬率 }}</td>
+                <td>{{ row.現金股利 }}</td><td>{{ row.股票股利 }}</td><td>{{ row.總現金股利 }}</td>
+                <td>{{ row.總股票股利 }}</td><td>{{ row.股票股利市值 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="table-secondary fw-bold">
+            <tr>
+                <td colspan="5" class="text-end">總計</td>
+                <td>{{ mom_summary.總成本 }}</td>
+                <td>{{ mom_summary.現值 }}</td>
+                <td class="{% if mom_summary.損益 >= 0 %}text-success{% else %}text-danger{% endif %}">{{ mom_summary.損益 }}</td>
+                <td></td><td></td><td></td>
+                <td>{{ mom_summary.總現金股利 }}</td>
+                <td>{{ mom_summary.總股票股利 }}</td>
+                <td>{{ mom_summary.總股票股利市值 }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<h5 class="mt-5 text-center">📊 合併總結（Me + 媽媽）</h5>
+<table class="table table-bordered text-center table-sm shadow-sm">
+    <thead class="table-secondary">
+        <tr>
+            <th>總成本</th>
+            <th>現值</th>
+            <th>損益</th>
+            <th>總現金股利</th>
+            <th>總股票股利</th>
+            <th>股票股利市值</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ combined_summary.總成本 }}</td>
+            <td>{{ combined_summary.現值 }}</td>
+            <td class="{% if combined_summary.損益 >= 0 %}text-success{% else %}text-danger{% endif %}">
+                {{ combined_summary.損益 }}
+            </td>
+            <td>{{ combined_summary.總現金股利 }}</td>
+            <td>{{ combined_summary.總股票股利 }}</td>
+            <td>{{ combined_summary.總股票股利市值 }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<p class="text-end text-muted">📌 最後更新時間：{{ updated_time }}</p>
+</body>
+</html>
